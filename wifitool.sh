@@ -28,8 +28,8 @@ function conectarseWifi(){
     redWifi="$1"
     clave="$2"
 
-    echo -e "Conetcando a la red wifi $redWifi"
-    nmcli device wifi connect $redWifi password $clave
+    echo -e "${yellowColour}[+]${endColour}${blueColour}Conetcando a la red wifi${endColour} ${yellowColour}$redWifi${endColour}"
+    echo -e "${yellowColour}[+]${endColour}${blueColour}$(nmcli device wifi connect $redWifi password $clave)${endColour}"
 }
 
 function redesGuardadas(){
@@ -56,13 +56,14 @@ declare -i comb_r=0
 declare -i comb_p=0
 
 #Menu
-while getopts "lr:p:gw:" arg; do
+while getopts "lr:p:gw:h" arg; do
     case $arg in
         l) parameter_counter+=1;;
         r) redWifi="$OPTARG"; comb_r=1;;
         p) clave="$OPTARG"; comb_p=1;;
         g) parameter_counter+=2;;
         w) wifiPass="$OPTARG"; parameter_counter+=3;;
+        h) ;;
     esac
 done
 
