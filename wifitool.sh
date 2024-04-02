@@ -12,14 +12,15 @@ grayColour="\e[0;37m\033[1m"
 
 #Funciones
 function menu(){
-    echo -e "\tPara conectarse a una red usa al tiempo:\n\t-r \"Red Wifi\" -p \"Contraseña\""
-    echo -e "\n\t-g 	 Ver redes Guardadas"
-    echo -e "\t-w 	 Ver contraseña wifi de la red solicitada"
-    echo -e "\t-l 	 Listar redes wifi disponibles\n"
+    echo -e "${yellowColour}[+]${endColour}${blueColour}Para conectarse a una red usa al tiempo:\n\t${yellowColour}-r${endColour} ${blueColour}\"Red Wifi\" ${yellowColour}-p${endColour} ${blueColour}\"Contraseña\"${endColour}"
+    echo -e "${yellowColour}[+]${endColour}${blueColour}Opciones principales${endColour}"
+    echo -e "\t${yellowColour}-g${endColour} 	 ${blueColour}Ver redes Guardadas${endColour}"
+    echo -e "\t${yellowColour}-w${endColour} 	 ${blueColour}Ver contraseña wifi de la red solicitada${endColour}${endColour}"
+    echo -e "\t${yellowColour}-l${endColour} 	 ${blueColour}Listar redes wifi disponibles${endColour}"
 }
 
 function verRedesDisponibles(){
-    echo -e "\n${greenColour}[+]${endColour} ${blueColor}Redes wifi disponibles:${endColour}"
+    echo -e "\n${yellowColour}[+]${endColour} ${blueColour}Redes wifi disponibles:${endColour}"
     echo -e "\n${turquoiseColour}$(nmcli device wifi list | grep -v '*' | awk -F '  ' '{print $6}' | column)${endColour}"
 }
 
@@ -32,7 +33,8 @@ function conectarseWifi(){
 }
 
 function redesGuardadas(){
-	nmcli connection show | awk -F '  ' '{print $1}' | grep -v "NAME" | column
+	echo -e "${yellowColour}[+]${endColour} ${blueColour}Listando redes wifi guardadas${endColour}"
+	echo -e "${turquoiseColour}$(nmcli connection show | awk -F '  ' '{print $1}' | grep -v "NAME" | column)${endColour}"
 }
 
 function mostrarPassword(){
@@ -41,9 +43,9 @@ function mostrarPassword(){
 
 	if [ "$user" == "root" ]; then
 		passWifi="$(sudo cat /etc/NetworkManager/system-connections/$wifiPass | grep "psk=" | awk -F 'psk=' '{print $2}')"
-		echo -e "$passWifi"
+		echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$passWifi${endColour}"
 	else
-		echo -e "se necesitan permisos de root para ejecutar esta funcion"
+		echo -e "${redColour}[!]${endColour} ${blueColour}Se necesitan permisos de root para ejecutar esta funcion.${endColour}"
 	fi
 }
 # Indicadores
