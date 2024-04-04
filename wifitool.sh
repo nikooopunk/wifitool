@@ -29,7 +29,7 @@ function conectarseWifi(){
     clave="$2"
 
     echo -e "${yellowColour}[+]${endColour}${blueColour}Conetcando a la red wifi${endColour} ${yellowColour}$redWifi${endColour}"
-    echo -e "${yellowColour}[+]${endColour}${blueColour}$(nmcli device wifi connect $redWifi password $clave)${endColour}"
+    echo -e "${blueColour}$(nmcli device wifi connect $redWifi password $clave)${endColour}"
 }
 
 function redesGuardadas(){
@@ -42,8 +42,15 @@ function mostrarPassword(){
 	user="$(whoami)"
 
 	if [ "$user" == "root" ]; then
-		passWifi="$(sudo cat /etc/NetworkManager/system-connections/$wifiPass | grep "psk=" | awk -F 'psk=' '{print $2}')"
-		echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$passWifi${endColour}"
+		passWifi="$(sudo cat /etc/NetworkManager/system-connections/$wifiPass &>/dev/null | grep "psk=" | awk -F 'psk=' '{print $2}')"
+		passWifiForce="$(sudo cat /etc/NetworkManager/system-connections/$wifiPass.nmconnection &>/dev/null | grep "psk=" | awk -F 'psk=' '{print $2}')"
+
+		if [ ! "$(sudo cat /etc/NetworkManager/system-connections/$wifiPass &>/dev/null || echo $?)" == 1 ]; then
+			echo -e "${yellowColour}[!]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/Perez_Guazo | grep "psk=" | awk -F 'psk=' '{print $2}')${endColour}"
+		else
+			echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/$wifiPass.nmconnection | grep 'psk=' | awk -F 'psk=' '{print $2}')${endColour}"
+		fi
+		#echo -e "$wifiPass"
 	else
 		echo -e "${redColour}[!]${endColour} ${blueColour}Se necesitan permisos de root para ejecutar esta funcion.${endColour}"
 	fi
