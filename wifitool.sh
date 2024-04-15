@@ -21,7 +21,7 @@ function menu(){
 
 function verRedesDisponibles(){
     echo -e "\n${yellowColour}[+]${endColour} ${blueColour}Redes wifi disponibles:${endColour}"
-    echo -e "\n${turquoiseColour}$(nmcli device wifi list | grep -v '*' | awk -F '  ' '{print $6}' | column)${endColour}"
+    echo -e "\n${turquoiseColour}$(nmcli device wifi list | grep -v '*' | awk -F '  ' '{print "\033[0;33m[+]\033[0m" "\033[0;32m", $6,"\033[0m"}' | tail -n +2)${endColour}"
 }
 
 function conectarseWifi(){
@@ -46,14 +46,23 @@ function mostrarPassword(){
 		passWifiForce="$(sudo cat /etc/NetworkManager/system-connections/$wifiPass.nmconnection &>/dev/null | grep "psk=" | awk -F 'psk=' '{print $2}')"
 
 		if [ ! "$(sudo cat /etc/NetworkManager/system-connections/$wifiPass &>/dev/null || echo $?)" == 1 ]; then
-			echo -e "${yellowColour}[!]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/Perez_Guazo | grep "psk=" | awk -F 'psk=' '{print $2}')${endColour}"
-		else
+			echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/Perez_Guazo | grep "psk=" | awk -F 'psk=' '{print $2}')${endColour}"
+		elif [ ! "$(sudo cat /etc/NetworkManager/system-connections/$wifiPass.nmconnection &>/dev/null || echo $?)" == 1 ]; then 
 			echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/$wifiPass.nmconnection | grep 'psk=' | awk -F 'psk=' '{print $2}')${endColour}"
+		elif [ ! "$(sudo cat /etc/NetworkManager/system-connections/$wifiPass1.nmconnection &>/dev/null || echo $?)" == 1 ]; then 
+			echo -e "${yellowColour}[+]${endColour} ${blueColour}La contraseña de la red ${yellowColour}$wifiPass${endColour} ${blueColour}es:${endColour} ${yellowColour}$(sudo cat /etc/NetworkManager/system-connections/$wifiPass1.nmconnection | grep 'psk=' | awk -F 'psk=' '{print $2}')${endColour}"	
+		else
+			echo -e "${redColour}[!]${endColour} ${blueColour}No se encontro la red${endColour} ${yellowColour}$wifiPass${endColour}${blueColour} dentro de las redes guardadas.${endColour}"
+			echo -e "${redColour}[!]${endColour} ${blueColour}Si esta seguro que la red existe puede buscarla manualmente en el directorio: ${endColour}${yellowColour} \"/etc/NetworkManager/system-connections/\"${endColour}"
 		fi
-		#echo -e "$wifiPass"
 	else
 		echo -e "${redColour}[!]${endColour} ${blueColour}Se necesitan permisos de root para ejecutar esta funcion.${endColour}"
 	fi
+}
+
+function showConnection(){
+	echo -e "${yellowColour}[+]${endColour}${blueColour} La conexion actual es:${endColour}"
+	echo -e "$(nmcli connection show | grep -v "\-\-" | grep -v 'lo' | tail -n +2 | awk -F '    ' '{print "\033[0;33m[+]\033[0m" "\033[0;32m", $1,"\033[0m"}')"
 }
 # Indicadores
 declare -i parameter_counter=0
@@ -63,13 +72,14 @@ declare -i comb_r=0
 declare -i comb_p=0
 
 #Menu
-while getopts "lr:p:gw:h" arg; do
+while getopts "lr:p:gw:hs" arg; do
     case $arg in
         l) parameter_counter+=1;;
         r) redWifi="$OPTARG"; comb_r=1;;
         p) clave="$OPTARG"; comb_p=1;;
         g) parameter_counter+=2;;
         w) wifiPass="$OPTARG"; parameter_counter+=3;;
+        s) show="OPTARG"; parameter_counter+=4;;
         h) ;;
     esac
 done
@@ -82,6 +92,8 @@ elif [ $parameter_counter -eq 2 ]; then
 	redesGuardadas
 elif [ $parameter_counter -eq 3 ]; then
 	mostrarPassword "$wifiPass"
+elif [ $parameter_counter -eq 4 ]; then
+	showConnection
 else
     menu
 fi
